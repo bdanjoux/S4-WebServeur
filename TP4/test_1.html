@@ -1,0 +1,66 @@
+<head>
+	<script>
+		var ch=10;
+		var x=0;
+		var intervalID;
+		var intervalID2;
+		var canvas;
+		var canvasCtx;
+		var sens = true;
+		function updateChiffre(){
+				var chiffre = document.getElementById('Chiffre');
+				chiffre.innerHTML = ch;
+				ch=ch-1;
+				if(ch===-1){
+					clearInterval(intervalID);
+				}
+		}
+		function deplacerCube(){
+			canvas=document.getElementById('MyCanvas');
+			canvasCtx=canvas.getContext('2d');
+			canvasCtx.clearRect(0,0,canvas.width,canvas.height);
+			var k;
+			var kk;
+			canvasCtx.beginPath();
+			for(kk=0;kk<5;kk=kk+1){
+				for(k=0;k<50;k=k+1){
+					canvasCtx.beginPath();
+					canvasCtx.rect((x+(k+kk*30)*10)%canvas.width,40+k*10,100,100);
+					canvasCtx.fillStyle = nextColor();
+					canvasCtx.fill();
+					canvasCtx.closePath();
+				}
+			}
+			canvasCtx.closePath();
+			if(sens){
+				if(x+10>canvas.width){
+					sens=!sens;
+					x=x-15;
+				}
+				else{
+					x=x+15;
+				}
+			}
+			else{
+				if(x-10<0){
+					sens=!sens;
+					x=x+15;
+				}
+				else{
+					x=x-15;
+				}
+			}
+		}
+		function init(){
+			updateChiffre();
+			intervalID=setInterval(updateChiffre,1000);
+			intervalID2=setInterval(deplacerCube,1);
+		}
+	</script>
+</head>
+<body onload="init()"> 
+		<h1 id="Chiffre">
+		</h1>
+		<canvas id="MyCanvas" width="1500" height="800" onclick="switchMovement()"/>
+		</canvas>
+</body>
