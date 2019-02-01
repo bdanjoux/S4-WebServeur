@@ -1,0 +1,82 @@
+<head>
+	<script>
+		var canvas;
+		var canvasCtx;
+		var carre
+		var oldDate;
+		var seDeplacer=true;
+		var aEteDessine=false;
+		var interval1;
+		
+		function updateCarre(){
+				canvasCtx.clearRect(0,0,canvas.width,canvas.height);
+				canvasCtx.beginPath();
+				canvasCtx.rect(carre.left,0,carre.width,carre.height);
+				canvasCtx.fillStyle = "#ff0000";
+				canvasCtx.fill();
+				canvasCtx.closePath();
+				oldDate= new Date();
+				aEteDessine=true;
+				if(seDeplacer){
+					requestAnimationFrame(deplacerCarre);
+				}
+		}
+
+
+		function deplacerCarre(delta){
+			var fps=5;
+			if(delta<1000/fps){
+				firstDate=new Date();
+				curDate=new Date();
+				do{
+					curDate= new Date();
+				}while((delta+(curDate-firstDate))<1000/fps);
+				delta=delta+(curDate-firstDate);
+			}
+			var deplacement=delta*(2/16);
+			if(carre.left>0){
+				aEteDessine=false
+				if(carre.left-deplacement>0){
+					carre.left=carre.left-deplacement;
+					seDeplacer=true;
+				}
+				else{
+					carre.left=0;
+					seDeplacer=false;
+				}
+			}
+			else{
+				aEteDessine=true;
+				seDeplacer=false;
+			}
+			updateCarre();
+		}
+		
+		function init(){
+			canvas=document.getElementById('MyCanvas');
+			canvasCtx=canvas.getContext('2d');
+			carre = new monRect();
+			carre.left=canvas.width-carre.width;
+			updateCarre();
+			requestAnimationFrame(deplacerCarre);
+
+		}
+		
+		class monRect{
+			constructor(){
+				this.nouveau();
+			}	
+			nouveau(){
+				this.left=0;
+				this.height=200;
+				this.width=200;
+			}
+		}
+		
+	</script>
+</head>
+
+<body onload='init()'> 
+		<canvas id="MyCanvas" width="1200" height="800">
+		</canvas>
+</body>
