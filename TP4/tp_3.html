@@ -6,16 +6,25 @@
 	var intervalID;
 	var elem=document.getElementById('animatedElement');
 	var computedStyle = window.getComputedStyle(elem, null);
-	intervalID = setInterval(deplacerCarre,1000/60);
+	var width = parseInt(computedStyle['width'],10);
+	console.log("left");
 	console.log(parseInt(computedStyle['left'],10));
+	console.log("width");
+	console.log(window.innerWidth);
+	elem.style.left=0;
+	intervalID = setInterval(start,2000);
+	function start(){
+		clearInterval(intervalID);
+		intervalID = setInterval(deplacerCarre,100);		
+	}
 	function deplacerCarre(){
 		var left = parseInt(computedStyle['left'],10);
-		if(left>0)
+		if(left+width<window.innerWidth)
 		{
 			console.log("je me déplace");
-			elem.style.left=left-10;
+			elem.style.left=left+10;
 		}else{
-			console.log("je me déplace pas");
+			console.log("je me déplace plus");
 			clearInterval(intervalID);
 		}
 	}

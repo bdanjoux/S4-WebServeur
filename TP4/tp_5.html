@@ -1,0 +1,92 @@
+<body id="leBody"> 
+	<link href="square.css" rel="stylesheet">
+	<div id="animatedElement1"></div>
+	<div id="animatedElement2"></div>
+	<div id="animatedElement3"></div>
+	<div id="animatedElement4"></div>
+	<div id="animatedElement5"></div>
+	<div id="animatedElement6"></div>
+	<div id="animatedElement7"></div>
+	<div id="animatedElement8"></div>
+	<div id="animatedElement9"></div>
+	<div id="animatedElement10"></div>
+</body>
+<script>	
+	var numberFinished=0;
+	var numberstarted=0;
+
+	var elem1=document.getElementById('animatedElement1');
+	var elem2=document.getElementById('animatedElement2');
+	var elem3=document.getElementById('animatedElement3');
+	var elem4=document.getElementById('animatedElement4');
+	var elem5=document.getElementById('animatedElement5');
+	var elem6=document.getElementById('animatedElement6');
+	var elem7=document.getElementById('animatedElement7');
+	var elem8=document.getElementById('animatedElement8');
+	var elem9=document.getElementById('animatedElement9');
+	var elem10=document.getElementById('animatedElement10');
+
+	var elemArray=[[elem2,false],[elem3,false],[elem4,false],[elem5,false],[elem6,false],[elem7,false],[elem8,false],[elem9,false],[elem10,false]];
+
+	var width = elem2.style.width;
+
+	for(k=0;k<elemArray.length;k++){
+		elemArray[k][0].style.left=0;
+		elemArray[k][0].style.top=(k)*200;
+	}
+
+	var intervalID2;
+	var intervalID = setInterval(start,4000);
+	
+
+	function start(){
+		clearInterval(intervalID);
+		var k;
+
+		elemArray[0][1]=true;
+		numberstarted++;
+		intervalID2 = setInterval(startElem,1000);
+		intervalID = setInterval(deplacerCarre,100);	
+	}
+
+	function startElem(){
+		if(numberstarted<elemArray.length){
+			elemArray[numberstarted][1]=true;
+			numberstarted++;
+		}
+		else{
+			clearInterval(intervalID2);
+		}
+	}
+
+	function deplacerCarre(){
+		var k = 0;
+		for(k;k<elemArray.length;k++){
+			if(elemArray[k][1]){
+				var elem = elemArray[k][0];
+				var computedStyle = window.getComputedStyle(elem, null);
+				var left = parseInt(computedStyle['left'],10);
+				if(left+width<window.innerWidth)
+				{
+					console.log("je me déplace");
+					elem.style.left=left+10;
+				}else{
+					console.log("je me déplace plus");
+					numberFinished++;
+					elemArray[k][1]=false;
+				}	
+			}
+		}
+		if(numberFinished==elemArray.length){
+			clearInterval(intervalID);
+		}
+	}
+
+	function pauseJs(timeout){
+		var initialDate = new Date();
+		var actualDate;
+		do{
+			actualDate = new Date();
+		}while(actualDate-initialDate < timeout);
+	}
+</script>

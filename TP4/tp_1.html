@@ -1,0 +1,27 @@
+<head>
+	<script>
+		var ch=10;
+		
+		var intervalID;
+	
+		function updateChiffre(){
+				var chiffre = document.getElementById('Chiffre');
+				chiffre.innerHTML = ch;
+				ch=ch-1;
+				if(ch===-1){
+					clearInterval(intervalID);
+				}
+		}
+		
+		function init(){
+			updateChiffre();
+			intervalID=setInterval(updateChiffre,1000);
+		}
+	</script>
+</head>
+<body onload="init()"> 
+		<h1 id="Chiffre">
+		</h1>
+		<canvas id="MyCanvas" width="1500" height="800" onclick="switchMovement()"/>
+		</canvas>
+</body>

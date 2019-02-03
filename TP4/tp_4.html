@@ -1,0 +1,97 @@
+<body id="leBody"> 
+	<link href="square.css" rel="stylesheet">
+	<div id="animatedElement2"></div>
+	<div id="animatedElement3"></div>
+	<div id="animatedElement4"></div>
+</body>
+<script>
+	var intervalID,intervalID2,intervalID3,intervalID4;
+	var computedStyle2,computedStyle3,computedStyle4;
+	
+	var numberFinished=0;
+
+	var elem2=document.getElementById('animatedElement2');
+	var elem3=document.getElementById('animatedElement3');
+	var elem4=document.getElementById('animatedElement4');
+
+	var width = elem2.style.width;
+	elem3.style.top=200;
+	elem4.style.top=400;
+	var computedStyle2 = window.getComputedStyle(elem2, null);
+	var computedStyle3 = window.getComputedStyle(elem3, null);
+	var computedStyle4 = window.getComputedStyle(elem4, null);
+	elem2.style.left=0;
+	elem3.style.left=0;
+	elem4.style.left=0;
+
+	intervalID2 = setInterval(start2,4000);
+	intervalID3 = setInterval(start3,5000);
+	intervalID4 = setInterval(start4,6000);
+	function start2(){
+		clearInterval(intervalID2);
+		intervalID2 = setInterval(deplacerCarre2,100);	
+	}
+
+	function start3(){
+		clearInterval(intervalID3);
+		intervalID3 = setInterval(deplacerCarre3,100);
+	}
+	
+	function start4(){
+		clearInterval(intervalID4);		
+		intervalID4 = setInterval(deplacerCarre4,100);
+	}
+
+	function deplacerCarre3(){
+		var elem = elem3;
+		var computedStyle = computedStyle3;
+		var left = parseInt(computedStyle['left'],10);
+		if(left+width<window.innerWidth)
+		{
+			console.log("je me déplace");
+			elem.style.left=left+10;
+		}else{
+			console.log("je me déplace plus");
+			numberFinished++;
+			clearInterval(intervalID3);
+		}
+	}
+
+	function deplacerCarre4(){
+		var elem = elem4;
+		var computedStyle = computedStyle4;
+		var left = parseInt(computedStyle['left'],10);
+		if(left+width<window.innerWidth)
+		{
+			console.log("je me déplace");
+			elem.style.left=left+10;
+		}else{
+			console.log("je me déplace plus");
+			numberFinished++;
+			clearInterval(intervalID4);
+		}
+	}
+
+	function deplacerCarre2(){
+		var elem = elem2;
+		var computedStyle = computedStyle2;
+		var left = parseInt(computedStyle['left'],10);
+		if(left+width<window.innerWidth)
+		{
+			console.log("je me déplace");
+			elem.style.left=left+10;
+		}else{
+			console.log("je me déplace plus");
+			numberFinished++;
+			clearInterval(intervalID2);
+		}
+	}
+
+	function pauseJs(timeout){
+		var initialDate = new Date();
+		var actualDate;
+		do{
+			actualDate = new Date();
+		}while(actualDate-initialDate < timeout);
+	}
+</script>

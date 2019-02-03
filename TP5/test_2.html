@@ -1,87 +1,46 @@
+<body> 
+		<link href="square.css" rel="stylesheet">
+		<div id="animatedElement"></div>
+</body>
 <head>
 	<script>
-		var canvas;
-		var canvasCtx;
-		var carre
-		var oldDate;
-		var seDeplacer=true;
-		var aEteDessine=false;
-		var interval1;
+		var elem = document.getElementById('animatedElement');
+		var computedStyle = window.getComputedStyle(elem, null);
+		var seDeplacer = true;
+		oldDate=new Date();
+		var interval1 = setInterval(temp,1);
 		
-		function updateCarre(){
-				canvasCtx.clearRect(0,0,canvas.width,canvas.height);
-				canvasCtx.beginPath();
-				canvasCtx.rect(carre.left,0,carre.width,carre.height);
-				canvasCtx.fillStyle = "#ff0000";
-				canvasCtx.fill();
-				canvasCtx.closePath();
-				oldDate= new Date();
-				aEteDessine=true;
-		}
-
 		function temp(){
 			if(seDeplacer=false){
 				clearInterval(interval1);
-			}
-			else if(aEteDessine){
+			}else{
 				curdate=new Date();
-			do{
-				curdate=new Date();
-			}while(curdate<(oldDate+16));
-			deplacerCarre();
-			updateCarre();
+				do{
+					curdate=new Date();
+				}while(curdate<(oldDate+16));
+				deplacerCarre();
 			}
 		}
 
 		function deplacerCarre(){
 			var deplacement=(new Date()-oldDate)*(10/16);
-			if(carre.left>0){
-				aEteDessine=false
-				if(carre.left-deplacement>0){
-					carre.left=carre.left-deplacement;
+			var left = parseInt(computedStyle['left'],10);
+			if(left>0){
+				if(left-deplacement>0){
+					elem.style.left=left-deplacement;
 					seDeplacer=true;
 				}
 				else{
-					carre.left=0;
+					elem.style.left=0;
 					seDeplacer=false;
 				}
 			}
 			else{
-				aEteDessine=true;
 				seDeplacer=false;
 			}
-		}
-		
-		function update(){
-			updateCarre();
-			deplacerCarre();	
-		}
-		
-		function init(){
-			canvas=document.getElementById('MyCanvas');
-			canvasCtx=canvas.getContext('2d');
-			carre = new monRect();
-			carre.left=canvas.width-carre.width;
-			updateCarre();
-			interval1=setInterval(temp,1);
-
-		}
-		
-		class monRect{
-			constructor(){
-				this.nouveau();
-			}	
-			nouveau(){
-				this.left=0;
-				this.height=200;
-				this.width=200;
-			}
+			oldDate=new Date();
 		}
 		
 	</script>
 </head>
 
-<body onload='init()'> 
-		<canvas id="MyCanvas" width="800" height="800">
-		</canvas>
-</body>
