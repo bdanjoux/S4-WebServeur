@@ -1,0 +1,57 @@
+<body> 
+		<canvas id="MyCanvas"></canvas>
+</body>
+<script>
+
+	var mainloop = function() {
+        updateGame();
+        drawGame();
+    };
+
+    function updateGame(){
+    	updateCoin();
+    }
+
+    function drawGame(){
+    	animateCoin();
+    }
+
+    var animFrame = window.requestAnimationFrame ||
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame    ||
+            window.oRequestAnimationFrame      ||
+            window.msRequestAnimationFrame     ||
+            null ;
+
+    var recursiveAnim = function() {
+        mainloop();
+        animFrame( recursiveAnim );
+    };
+
+    // start the mainloop
+    animFrame( recursiveAnim );
+
+    var canvas = document.getElementById('MyCanvas');
+    var context = canvas.getContext('2d');
+
+    var coinIndex=0;
+	var coinImg = new Image();
+	var coinLoaded=false;
+	coinImg.addEventListener('load', function() {
+	  coinLoaded=true;
+	}, false);
+	coinImg.src = 'images/coin-sprite-animation.png';
+
+	function animateCoin(){
+		if(coinLoaded){
+			context.clearRect(0,0,100,100);
+		context.drawImage(coinImg,coinIndex*100,0,100,100,0,0,100,100);	
+		}
+	}
+
+	function updateCoin(){
+		coinIndex++;
+		coinIndex=coinIndex%10;	
+	}
+
+</script>
