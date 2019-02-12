@@ -16,11 +16,23 @@
     };
 
     function updateGame(){
-      updateMan();
+      manTick++;
+      mechantTick++;
+      if(manTick/6>1){
+        manTick=0;
+        updateMan();
+      }
+      if(mechantTick/10>1){
+        mechantTick=0;
+        updateMechant();
+      }
     }
 
     function drawGame(){
+      context.clearRect(0,0,canvas.width,canvas.height);
+      animateFond();
       animateMan();
+      animateMechant();
     }
 
     var animFrame = window.requestAnimationFrame ||
@@ -42,6 +54,7 @@
     var context = canvas.getContext('2d');
     var manWalking = false;
     var manTick = 0;
+    var mechantTick = 0;
     var keysDown = [false,false,false,false];
     var manPosition =[0,0];
 
@@ -52,6 +65,24 @@
   }, false);
   manImg.src = 'hero_walk_cycle_spritesheet_by_mrnoobtastic-d3defej.png';
   manIndex = [0,0];
+
+
+  var mechantImg = new Image();
+  var mechantLoaded = false;
+  mechantImg.addEventListener('load', function() {
+    mechantLoaded=true;
+  }, false);
+  mechantImg.src = 'mechant.png';
+  var Mechants = [[10,10,0],[100,100,1],[300,10,0],[-1,-1,0],[-1,-1,0],[-1,-1,0]];
+
+  var fondImg = new Image();
+  var fondLoaded = false;
+  fondImg.addEventListener('load', function() {
+    fondLoaded=true;
+  }, false);
+  fondImg.src = 'fond.png';
+
+
 
   window.addEventListener("keydown", keystroke, false);
   window.addEventListener("keyup", keyuphandler, false);
@@ -108,9 +139,7 @@
   }
 
   function updateMan(){
-    manTick++;
-    if(manWalking && manTick>=6){
-      manTick=0;
+    if(manWalking){
       manIndex[0]=(manIndex[0]+1)%4;
       var count = 0;
       if(keysDown[0]){
@@ -175,11 +204,57 @@
     }
   }
 
+  function updateMechant(){
+    var k =0;
+    var standardSpeed = 5;
+    for(k=0;k<Mechants.length;k++){
+
+      // Shift it's state
+      if(Mechants[k][2] == 1){
+        Mechants[k][2]=0; 
+      }else{
+        Mechants[k][2]=1; 
+      }
+
+      // Move it
+
+      var X = manPosition[0] - Mechants[k][0];
+      var Y = manPosition[1] - Mechants[k][1];
+      var dist = Math.sqrt(X**2+Y**2);
+      Mechants[k][0]=Mechants[k][0]+standardSpeed*X/dist;
+      Mechants[k][1]=Mechants[k][1]+standardSpeed*Y/dist;
+
+    }
+  }
+
+
+
+  function animateFond(){
+    if(fondLoaded){
+      context.drawImage(fondImg,0,0,1004,655,0,0,canvas.width,canvas.height); 
+    }
+  }
+
   function animateMan(){
     if(manLoaded){
-      context.clearRect(0,0,canvas.width,canvas.height);
       context.drawImage(manImg,manIndex[0]*128,manIndex[1]*128,128,128,manPosition[0],manPosition[1],128,128); 
     }
+  }
+
+
+function animateMechant(){
+    if(mechantLoaded){
+      var k =0;
+      for(k=0;k<Mechants.length;k++){
+       if(Mechants[k][0]!=-1 && Mechants[k][1]!=-1){
+          context.drawImage(mechantImg,170/2*Mechants[k][2],0,170/2,125,Mechants[k][0],Mechants[k][1],170/2,125); 
+        }
+      }
+    }
+  }
+
+  function addMechant(){
+
   }
 
 </script>
