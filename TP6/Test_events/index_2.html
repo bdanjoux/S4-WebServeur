@@ -10,53 +10,60 @@
 <script src="../../jquery-3.3.1.js"></script>
 <script src="jquery.hotkeys.js"></script>
 <script id="myScript">
-  var mainloop = function() {
-        updateGame();
-        drawGame();
-    };
 
-    function updateGame(){
-      manTick++;
-      mechantTick++;
-      if(manTick/6>1){
-        manTick=0;
-        updateMan();
-      }
-      if(mechantTick/10>1){
-        mechantTick=0;
-        updateMechant();
-      }
+var oldtime=0;
+var showBoundingBoxes=true;
+var mainloop = function(timeSinceStart) {
+      var delta = timeSinceStart - oldtime;
+      oldtime = timeSinceStart;
+      updateGame(delta);
+      drawGame();
+  };
+
+  function updateGame(delta){
+    manTick++;
+    mechantTick++;
+    if(manTick>6){
+      manTick=0;
+      updateMan();
     }
-
-    function drawGame(){
-      context.clearRect(0,0,canvas.width,canvas.height);
-      animateFond();
-      animateMan();
-      animateMechant();
+    moveMan(delta);
+    if(mechantTick>10){
+      mechantTick=0;
+      updateMechants();
     }
+    moveMechants(delta);
+  }
 
-    var animFrame = window.requestAnimationFrame ||
-            window.webkitRequestAnimationFrame ||
-            window.mozRequestAnimationFrame    ||
-            window.oRequestAnimationFrame      ||
-            window.msRequestAnimationFrame     ||
-            null ;
+  function drawGame(){
+    context.clearRect(0,0,canvas.width,canvas.height);
+    animateFond();
+    animateMan();
+    drawMechants();
+  }
 
-    var recursiveAnim = function() {
-        mainloop();
-        animFrame( recursiveAnim );
-    };
+  var animFrame = window.requestAnimationFrame ||
+          window.webkitRequestAnimationFrame ||
+          window.mozRequestAnimationFrame    ||
+          window.oRequestAnimationFrame      ||
+          window.msRequestAnimationFrame     ||
+          null ;
 
-    // start the mainloop
-    animFrame( recursiveAnim );
+  var recursiveAnim = function(delta) {
+      mainloop(delta);
+      animFrame( recursiveAnim );
+  };
 
-    var canvas = document.getElementById('MyCanvas');
-    var context = canvas.getContext('2d');
-    var manWalking = false;
-    var manTick = 0;
-    var mechantTick = 0;
-    var keysDown = [false,false,false,false];
-    var manPosition =[0,0];
+  // start the mainloop
+  animFrame( recursiveAnim );
+
+  var canvas = document.getElementById('MyCanvas');
+  var context = canvas.getContext('2d');
+  var manWalking = false;
+  var manTick = 0;
+  var mechantTick = 0;
+  var keysDown = [false,false,false,false];
+  var manPosition =[0,0];
 
   var manImg = new Image();
   var manLoaded=false;
@@ -66,6 +73,13 @@
   manImg.src = 'hero_walk_cycle_spritesheet_by_mrnoobtastic-d3defej.png';
   manIndex = [0,0];
 
+  var boundBoxImg = new Image();
+  var boundBoxLoaded=false;
+  boundBoxImg.addEventListener('load', function() {
+    boundBoxLoaded=true;
+  }, false);
+  boundBoxImg.src = 'boundBox.png';
+
 
   var mechantImg = new Image();
   var mechantLoaded = false;
@@ -73,7 +87,7 @@
     mechantLoaded=true;
   }, false);
   mechantImg.src = 'mechant.png';
-  var Mechants = [[10,10,0],[100,100,1],[300,10,0],[-1,-1,0],[-1,-1,0],[-1,-1,0]];
+  var Mechants = new Array(6);
 
   var fondImg = new Image();
   var fondLoaded = false;
@@ -86,6 +100,10 @@
 
   window.addEventListener("keydown", keystroke, false);
   window.addEventListener("keyup", keyuphandler, false);
+
+  addRandomMechant();
+  addRandomMechant();
+  addRandomMechant();
 
 
   
@@ -141,89 +159,148 @@
   function updateMan(){
     if(manWalking){
       manIndex[0]=(manIndex[0]+1)%4;
-      var count = 0;
-      if(keysDown[0]){
-        count++;
-      }
-      if(keysDown[1]){
-        count++;
-      }
-      if(keysDown[2]){
-        count++;
-      }
-      if(keysDown[3]){
-        count++;
-      }
-      var defaultMovement = 10;
-      if(count === 1 || count === 2){
-          if(keysDown[0] && keysDown[2]){
-            manPosition[0]-=defaultMovement;
-            manPosition[1]-=defaultMovement;
-            manIndex[1]=0;
-            //manIndex[1]=3
-          }
-          else if(keysDown[0] && keysDown[3]){
-            manPosition[0]+=defaultMovement;
-            manPosition[1]-=defaultMovement;
-            manIndex[1]=1;
-            //manIndex[1]=3
-          }
-          else if(keysDown[1] && keysDown[2]){
-            manPosition[0]-=defaultMovement;
-            manPosition[1]+=defaultMovement;
-            manIndex[1]=0;
-            //manIndex[1]=2;
-          }
-          else if(keysDown[1] && keysDown[3]){
-            manPosition[0]+=defaultMovement;
-            manPosition[1]+=defaultMovement;
-            manIndex[1]=1;
-            //manIndex[1]=2;
-          }
-          else if(keysDown[0]){
-            manIndex[1]=3;
-            manPosition[1]-=defaultMovement;
-            console.log(manPosition[1]);
-          }
-          else if(keysDown[1]){
-            manIndex[1]=2;
-            manPosition[1]+=defaultMovement;
-            console.log(manPosition[1]);
-          }
-          else if(keysDown[2]){
-            manIndex[1]=0;
-            manPosition[0]-=defaultMovement;
-            console.log(manPosition[0]);
-          }
-          else if(keysDown[3]){
-            manIndex[1]=1;
-            manPosition[0]+=defaultMovement;
-            console.log(manPosition[0]);
-          }
+    }
+  }
+
+  function moveMan(delta){
+    var count = 0;
+    if(keysDown[0]){
+      count++;
+    }
+    if(keysDown[1]){
+      count++;
+    }
+    if(keysDown[2]){
+      count++;
+    }
+    if(keysDown[3]){
+      count++;
+    }
+    var defaultMovement = 0.3;
+    if(count === 1 || count === 2){
+        if(keysDown[0] && keysDown[2]){
+          manPosition[0]-=defaultMovement*delta;
+          manPosition[1]-=defaultMovement*delta;
+          manIndex[1]=0;
+          //manIndex[1]=3
+        }
+        else if(keysDown[0] && keysDown[3]){
+          manPosition[0]+=defaultMovement*delta;
+          manPosition[1]-=defaultMovement*delta;
+          manIndex[1]=1;
+          //manIndex[1]=3
+        }
+        else if(keysDown[1] && keysDown[2]){
+          manPosition[0]-=defaultMovement*delta;
+          manPosition[1]+=defaultMovement*delta;
+          manIndex[1]=0;
+          //manIndex[1]=2;
+        }
+        else if(keysDown[1] && keysDown[3]){
+          manPosition[0]+=defaultMovement*delta;
+          manPosition[1]+=defaultMovement*delta;
+          manIndex[1]=1;
+          //manIndex[1]=2;
+        }
+        else if(keysDown[0]){
+          manIndex[1]=3;
+          manPosition[1]-=defaultMovement*delta;
+          console.log(manPosition[1]);
+        }
+        else if(keysDown[1]){
+          manIndex[1]=2;
+          manPosition[1]+=defaultMovement*delta;
+          console.log(manPosition[1]);
+        }
+        else if(keysDown[2]){
+          manIndex[1]=0;
+          manPosition[0]-=defaultMovement*delta;
+          console.log(manPosition[0]);
+        }
+        else if(keysDown[3]){
+          manIndex[1]=1;
+          manPosition[0]+=defaultMovement*delta;
+          console.log(manPosition[0]);
+        }
+    }
+  }
+
+  function updateMechants(){
+    var k =0;
+    for(k=0;k<Mechants.length;k++){
+      Mechants[k].update();
+    }
+  }
+
+  function drawMechants(){
+    var k =0;
+    for(k=0;k<Mechants.length;k++){
+      if(Mechants[k]!=null){
+        Mechants[k].draw();
       }
     }
   }
 
-  function updateMechant(){
+  function updateMechants(){
     var k =0;
-    var standardSpeed = 5;
     for(k=0;k<Mechants.length;k++){
-
-      // Shift it's state
-      if(Mechants[k][2] == 1){
-        Mechants[k][2]=0; 
-      }else{
-        Mechants[k][2]=1; 
+      if(Mechants[k]!=null){
+        Mechants[k].update();
       }
+    }
+  }
 
+  function moveMechants(delta){
+    var k =0;
+    for(k=0;k<Mechants.length;k++){
+      if(Mechants[k]!=null){
+        Mechants[k].move(delta);
+      }
+    }
+  }
+
+
+  function drawBoundingBox(x,y,w,h){
+    if(boundBoxLoaded){
+      context.drawImage(boundBoxImg,0,0,512,512,x,y,170/2,125); 
+    }
+  }
+  function Mechant(x,y,speed){
+    this.x=x;
+    this.y=y;
+    this.speed=speed;
+    this.state=Math.random();
+    this.update = function(){
+      // Shift it's state
+      if(this.state == 1){
+           this.state=0; 
+        }else{
+          this.state=1; 
+      }
+    }
+    this.move = function(delta){
       // Move it
+      var X = manPosition[0] - this.x;
+      var Y = manPosition[1] - this.y;
+      console.log(X);
+      console.log(Y);
+      if(Math.abs(X)>1 || Math.abs(Y)>1){
+        var dist = Math.sqrt(X**2+Y**2);
+        this.x=this.x+this.speed*delta*X/dist;
+        this.y=this.y+this.speed*delta*Y/dist;
+      }
+    }
 
-      var X = manPosition[0] - Mechants[k][0];
-      var Y = manPosition[1] - Mechants[k][1];
-      var dist = Math.sqrt(X**2+Y**2);
-      Mechants[k][0]=Mechants[k][0]+standardSpeed*X/dist;
-      Mechants[k][1]=Mechants[k][1]+standardSpeed*Y/dist;
-
+    this.draw = function(){
+      if(this.state==0){
+        context.drawImage(mechantImg,0,0,170/2,125,this.x,this.y,170/2,125); 
+      }
+      else{
+        context.drawImage(mechantImg,170/2+1,0,170/2,125,this.x,this.y,170/2,125); 
+      }
+      if(showBoundingBoxes){
+        drawBoundingBox(this.x,this.y,170/2,125);
+      }
     }
   }
 
@@ -237,24 +314,39 @@
 
   function animateMan(){
     if(manLoaded){
-      context.drawImage(manImg,manIndex[0]*128,manIndex[1]*128,128,128,manPosition[0],manPosition[1],128,128); 
+      context.drawImage(manImg,manIndex[0]*128,manIndex[1]*128,128,128,manPosition[0],manPosition[1],128,128);    
+    }
+    if(showBoundingBoxes){
+        drawBoundingBox(manPosition[0],manPosition[1],128,128);
     }
   }
 
-
-function animateMechant(){
-    if(mechantLoaded){
-      var k =0;
-      for(k=0;k<Mechants.length;k++){
-       if(Mechants[k][0]!=-1 && Mechants[k][1]!=-1){
-          context.drawImage(mechantImg,170/2*Mechants[k][2],0,170/2,125,Mechants[k][0],Mechants[k][1],170/2,125); 
-        }
+  function addRandomMechant(){
+    //excluson radius
+    var radius = 300;
+    var added=false;
+    var k = 0;
+    var x,y;
+    while(!added && k<Mechants.length){
+      if(Mechants[k]==null){
+        console.log("found unactivated Mechant");
+        do{
+          x=Math.random()*canvas.width;
+          y=Math.random()*canvas.height;
+        }while(Math.sqrt((x-manPosition[0])**2+(y-manPosition[1])**2) < radius);
+        console.log("found where to put him:"+x+" "+y);
+        Mechants[k]=new Mechant(x,y,0.1)
+        console.log("k :"+k);
+        console.dir(Mechants);
+        added=true;
       }
+      else{
+        // do nothing
+      }
+      k++;
+    }
+    if(!added){
+      console.log("Could not find suitable place to put new Ennemy");
     }
   }
-
-  function addMechant(){
-
-  }
-
 </script>
